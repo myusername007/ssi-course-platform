@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/app/generated/prisma
+
+# Prisma CLI agent-skill reference docs (vendor documentation, not project content)
+/.agents
+/.claude
+/.windsurf
+/.devin
+skills-lock.json
