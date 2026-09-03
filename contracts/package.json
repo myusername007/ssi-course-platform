@@ -1,0 +1,19 @@
+{
+  "name": "ssi-course-platform-contracts",
+  "version": "1.0.0",
+  "description": "Hardhat project for CourseRegistry.sol and its IIdentityRegistry interface to the existing BasicIdentityRegistry (Sepolia)",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.2",
+    "hardhat": "^2.29.1",
+    "typescript": "5.9.3"
+  }
+}

@@ -48,3 +48,13 @@ next-env.d.ts
 /.windsurf
 /.devin
 skills-lock.json
+
+# contracts/ is an isolated npm subproject (own ethers v6, separate from the
+# root app's ethers v5) — ignore its own dependency/build artifacts
+contracts/node_modules
+contracts/.env
+contracts/cache
+contracts/artifacts
+contracts/typechain-types
+contracts/coverage
+contracts/*.tsbuildinfo
