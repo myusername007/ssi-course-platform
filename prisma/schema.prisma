@@ -11,3 +11,31 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+/// A course/webinar listed on the platform. Content only — no personal data.
+model Course {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  schedule    String?
+  createdAt   DateTime @default(now())
+
+  enrollments Enrollment[]
+}
+
+/// A confirmed on-chain course registration, mirrored here for fast lookups
+/// ("my courses", listing pages). The blockchain (CourseRegistry.sol) is the
+/// source of truth for whether a registration is valid — this table is a
+/// cache, written only after the backend independently verifies the
+/// registerForCourse() transaction on-chain (never trusted from the client
+/// alone). walletAddress is the user's identifier — no email/password.
+model Enrollment {
+  id            Int      @id @default(autoincrement())
+  courseId      Int
+  course        Course   @relation(fields: [courseId], references: [id])
+  walletAddress String
+  txHash        String
+  registeredAt  DateTime @default(now())
+
+  @@unique([courseId, walletAddress])
+}
