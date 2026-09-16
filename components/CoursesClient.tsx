@@ -78,6 +78,17 @@ export default function CoursesClient({ courses }: Props) {
     }
     setConnecting(true);
     try {
+      // Plain eth_requestAccounts silently returns the address MetaMask
+      // already approved for this site on a previous visit — it does NOT
+      // reopen the account picker just because the user switched their
+      // active account inside the extension. wallet_requestPermissions
+      // forces that picker to show every time, so switching wallets
+      // actually works after a page reload, not just via the live
+      // accountsChanged listener below.
+      await window.ethereum.request({
+        method: "wallet_requestPermissions",
+        params: [{ eth_accounts: {} }],
+      });
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const accounts = await provider.send("eth_requestAccounts", []);
       setAddress(accounts[0]);
