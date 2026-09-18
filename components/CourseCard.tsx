@@ -16,7 +16,7 @@ export default function CourseCard({ course }: { course: CourseListItem }) {
   const { registered, state, canRegister, register } = useCourseRegistration(course.id);
 
   let label = "Записатися";
-  if (registered) label = "Ви записані ✅";
+  if (registered) label = "Ви записані";
   else if (state === "pending") label = "Підтвердження...";
   const disabled = !canRegister || registered || state === "pending";
 

@@ -17,7 +17,7 @@ export default function CourseDetail({ course }: { course: CourseDetailItem }) {
   const { registered, state, error, canRegister, register } = useCourseRegistration(course.id);
 
   let label = "Записатися на курс";
-  if (registered) label = "Ви записані ✅";
+  if (registered) label = "Ви записані";
   else if (state === "pending") label = "Підтвердження транзакції...";
   const disabled = !canRegister || registered || state === "pending";
 

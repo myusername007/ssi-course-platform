@@ -36,13 +36,13 @@ export default function WalletBar() {
           {checkingVerification && <p className="text-sm text-muted">Перевірка верифікації...</p>}
           {!checkingVerification && verified === true && (
             <p className="inline-flex items-center gap-2 rounded-full bg-success-bg px-4 py-2 text-sm font-medium text-success">
-              ✅ Верифіковано — SSI-ідентичність підтверджена
+              Верифіковано — SSI-ідентичність підтверджена
             </p>
           )}
           {!checkingVerification && verified === false && (
             <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-warning-bg px-5 py-4">
               <p className="text-sm font-medium text-warning">
-                ⚠️ Не верифіковано — потрібна зареєстрована SSI-ідентичність
+                Не верифіковано — потрібна зареєстрована SSI-ідентичність
               </p>
               <button
                 onClick={openSsiVerificationPopup}
