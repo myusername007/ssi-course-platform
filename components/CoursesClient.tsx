@@ -23,6 +23,8 @@ interface Props {
 
 type RegisteringState = Record<number, "idle" | "pending" | "done" | "error">;
 
+const SSI_APP_ORIGIN = "https://bakalavr.vercel.app";
+
 export default function CoursesClient({ courses }: Props) {
   const [address, setAddress] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
@@ -119,6 +121,29 @@ export default function CoursesClient({ courses }: Props) {
     };
   }, [refreshOnChainState]);
 
+  // Listens for the SSI app's popup postMessage (see useRelyingPartyMode.ts
+  // on that side). The message is only ever treated as a hint to re-check —
+  // the actual verified state always comes from our own on-chain read below,
+  // never from the message payload directly.
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== SSI_APP_ORIGIN) return;
+      if (event.data?.type !== "ssi-auth-success") return;
+      const { address: notifiedAddress } = event.data as { address?: string };
+      if (!notifiedAddress || notifiedAddress.toLowerCase() !== address?.toLowerCase()) return;
+      refreshOnChainState(notifiedAddress);
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [address, refreshOnChainState]);
+
+  const openSsiVerificationPopup = () => {
+    const rpOrigin = encodeURIComponent(window.location.origin);
+    // Must be called synchronously from the click handler (no await before
+    // it) — otherwise most browsers' popup blockers silently swallow it.
+    window.open(`${SSI_APP_ORIGIN}/?rp_origin=${rpOrigin}`, "ssi-auth", "width=500,height=700");
+  };
+
   const register = async (courseId: number) => {
     if (!address || !window.ethereum) return;
     setRegistering((prev) => ({ ...prev, [courseId]: "pending" }));
@@ -193,18 +218,17 @@ export default function CoursesClient({ courses }: Props) {
             </p>
           )}
           {!checkingVerification && verified === false && (
-            <p className="text-sm text-amber-700 font-semibold">
-              ⚠️ Не верифіковано — спершу зареєструйте SSI-ідентичність у{" "}
-              <a
-                href="https://bakalavr.vercel.app"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
+            <div className="text-sm text-amber-700">
+              <p className="font-semibold mb-2">
+                ⚠️ Не верифіковано — потрібна зареєстрована SSI-ідентичність
+              </p>
+              <button
+                onClick={openSsiVerificationPopup}
+                className="px-4 py-2 rounded bg-amber-600 text-white text-sm font-semibold hover:bg-amber-700"
               >
-                SSI-додатку
-              </a>
-              , потім поверніться сюди й натисніть "Перевірити ще раз"
-            </p>
+                Верифікувати через SSI ↗
+              </button>
+            </div>
           )}
         </div>
       )}
