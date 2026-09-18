@@ -14,11 +14,16 @@ datasource db {
 
 /// A course/webinar listed on the platform. Content only — no personal data.
 model Course {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String
-  schedule    String?
-  createdAt   DateTime @default(now())
+  id               Int      @id @default(autoincrement())
+  title            String
+  /// Short blurb shown on the catalog card.
+  description      String
+  /// Full text shown on the course's own detail page.
+  longDescription  String
+  level            String?
+  duration         String?
+  schedule         String?
+  createdAt        DateTime @default(now())
 
   enrollments Enrollment[]
 }
