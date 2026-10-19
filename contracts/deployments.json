@@ -1,0 +1,6 @@
+{
+  "sepolia": {
+    "identityRegistry": "0xBdd500644fff1693f14f3853DB1fa5fba5BC2558",
+    "ticketRegistry": "0x14F749672AB73F16EAaEffAAc91c864B3Acc4852"
+  }
+}

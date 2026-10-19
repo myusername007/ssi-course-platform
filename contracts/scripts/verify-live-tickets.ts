@@ -1,11 +1,12 @@
 import { ethers } from "hardhat";
+import deployments from "../deployments.json";
 
 // End-to-end live check of TicketRegistry on Sepolia, using the deployer
 // wallet (organizer, and verified in the real identity registry). Uses
 // freshly generated event ids so it can be re-run. Costs a small amount of
 // Sepolia ETH; the paid ticket price is returned to the organizer by
 // withdraw() at the end.
-const TICKET_REGISTRY = "0x14F749672AB73F16EAaEffAAc91c864B3Acc4852";
+const TICKET_REGISTRY = deployments.sepolia.ticketRegistry;
 const PRICE = ethers.parseEther("0.0001");
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

@@ -44,3 +44,40 @@ model Enrollment {
 
   @@unique([courseId, walletAddress])
 }
+
+/// An event (meetup, conference, webinar, ...) whose tickets are sold through
+/// TicketRegistry.sol. `id` is the same number the event has on-chain, so it is
+/// assigned by hand (see data/events.json), not auto-incremented. The price,
+/// capacity and times are also stored on-chain, which is the source of truth;
+/// the descriptive fields only exist here.
+model Event {
+  id              Int      @id
+  title           String
+  description     String
+  longDescription String
+  category        String
+  format          String
+  location        String?
+  startsAt        DateTime
+  endsAt          DateTime
+  /// Exact on-chain price in wei, as a string (too large for a JS number).
+  priceWei        String
+  capacity        Int
+  createdAt       DateTime @default(now())
+
+  tickets Ticket[]
+}
+
+/// A purchased ticket, mirrored here for fast "my tickets" lookups. Written only
+/// after the backend independently re-reads the ticket from the chain (never
+/// trusted from the client alone). `id` is the ticket id from the contract.
+model Ticket {
+  id           Int      @id
+  eventId      Int
+  event        Event    @relation(fields: [eventId], references: [id])
+  ownerAddress String
+  txHash       String
+  purchasedAt  DateTime @default(now())
+
+  @@unique([eventId, ownerAddress])
+}
