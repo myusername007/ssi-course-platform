@@ -84,15 +84,15 @@ async function main() {
   await expectRevert("second ticket, same identity", () => ro.buyTicket.staticCall(PAID, { from: organizer.address, value: PRICE }), "AlreadyHasTicket");
   await expectRevert("wrong payment", () => ro.buyTicket.staticCall(PAID, { from: organizer.address, value: 1n }), "WrongPayment");
   await expectRevert("wallet without identity", () => ro.buyTicket.staticCall(FREE, { from: stranger, value: 0 }), "NotVerified");
-  await expectRevert("markUsed by non-organizer", () => ro.markUsed.staticCall(ticketId, { from: stranger }), "NotOwner");
+  await expectRevert("check-in by someone who is not the holder", () => ro.checkIn.staticCall(ticketId, { from: stranger }), "NotTicketHolder");
   await expectRevert("rate before the event ends", () => ro.rateEvent.staticCall(PAID, 5, { from: organizer.address }), "EventNotFinished");
 
-  console.log(`\n[4] markUsed`);
-  r = await (await tickets.markUsed(ticketId)).wait();
-  gas.markUsed = r!.gasUsed;
+  console.log(`\n[4] checkIn (the holder marks their own ticket)`);
+  r = await (await tickets.checkIn(ticketId)).wait();
+  gas.checkIn = r!.gasUsed;
   const usedNow = await eventually(() => ro.ticketInfo(ticketId), (v) => v.used);
-  console.log(`  used=${usedNow.used}, gas markUsed: ${gas.markUsed}`);
-  await expectRevert("markUsed twice", () => ro.markUsed.staticCall(ticketId, { from: organizer.address }), "AlreadyUsed");
+  console.log(`  used=${usedNow.used}, gas checkIn: ${gas.checkIn}`);
+  await expectRevert("check in twice", () => ro.checkIn.staticCall(ticketId, { from: organizer.address }), "AlreadyUsed");
 
   console.log(`\n[5] waiting for the event to end (chain time ${endsAt})...`);
   while ((await chainNow()) < endsAt) await sleep(6000);

@@ -5,8 +5,9 @@ import "dotenv/config";
 import { ethers } from "ethers";
 import { PrismaClient } from "../app/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import deployments from "../contracts/deployments.json";
 
-const TICKET_REGISTRY = "0x14F749672AB73F16EAaEffAAc91c864B3Acc4852";
+const TICKET_REGISTRY = deployments.sepolia.ticketRegistry;
 const RPC = process.env.SEPOLIA_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com";
 const iface = new ethers.utils.Interface([
   "function eventInfo(uint256 eventId) view returns (uint256 price, uint32 capacity, uint32 sold, uint64 startsAt, uint64 endsAt, bool exists)",

@@ -16,9 +16,16 @@ import "./interfaces/IIdentityRegistry.sol";
 ///  - Payment must equal the price exactly and is never refunded, so the
 ///    contract makes no external call with value during a purchase.
 ///  - One ticket per address per event.
+///  - Attendance is self-reported: the ticket holder calls checkIn() during
+///    the event window, which marks the ticket used. The organizer cannot
+///    mark tickets, so nobody needs to be at a door; only a holder who
+///    checked in can rate the event.
 contract TicketRegistry {
+    /// @notice How long before an event starts its holders may check in.
+    uint64 public constant CHECK_IN_OPENS_BEFORE = 15 minutes;
+
     IIdentityRegistry public immutable identityRegistry;
-    /// @notice The organizer: creates events, marks tickets used, withdraws funds.
+    /// @notice The organizer: creates events and withdraws funds.
     address public immutable owner;
 
     struct EventInfo {
@@ -66,6 +73,9 @@ contract TicketRegistry {
     error WrongPayment();
     error TicketNotFound();
     error AlreadyUsed();
+    error NotTicketHolder();
+    error CheckInNotOpen();
+    error EventEnded();
     error NoTicket();
     error EventNotFinished();
     error NotAttended();
@@ -123,16 +133,6 @@ contract TicketRegistry {
         emit EventCreated(eventId, price, capacity, startsAt, endsAt);
     }
 
-    /// @notice Marks a ticket as used (entry granted). Works once per ticket.
-    function markUsed(uint256 ticketId) external onlyOwner {
-        Ticket storage t = _tickets[ticketId];
-        if (t.owner == address(0)) revert TicketNotFound();
-        if (t.used) revert AlreadyUsed();
-
-        t.used = true;
-        emit TicketUsed(ticketId, t.eventId);
-    }
-
     /// @notice Sends all collected payments to the organizer.
     function withdraw() external onlyOwner {
         uint256 amount = address(this).balance;
@@ -165,9 +165,25 @@ contract TicketRegistry {
         emit TicketPurchased(ticketId, eventId, msg.sender, msg.value);
     }
 
-    /// @notice Rates an event 1..5. Only a holder whose ticket was marked
-    /// used (i.e. who attended) may rate, only after the event ended, and
-    /// only once.
+    /// @notice The holder joins the event: marks their own ticket used. Open
+    /// from CHECK_IN_OPENS_BEFORE before the start until the event ends; works
+    /// once per ticket.
+    function checkIn(uint256 ticketId) external {
+        Ticket storage t = _tickets[ticketId];
+        if (t.owner == address(0)) revert TicketNotFound();
+        if (t.owner != msg.sender) revert NotTicketHolder();
+        if (t.used) revert AlreadyUsed();
+
+        EventInfo storage e = _events[t.eventId];
+        if (block.timestamp + CHECK_IN_OPENS_BEFORE < e.startsAt) revert CheckInNotOpen();
+        if (block.timestamp >= e.endsAt) revert EventEnded();
+
+        t.used = true;
+        emit TicketUsed(ticketId, t.eventId);
+    }
+
+    /// @notice Rates an event 1..5. Only a holder who checked in may rate,
+    /// only after the event ended, and only once.
     function rateEvent(uint256 eventId, uint8 score) external {
         EventInfo storage e = _events[eventId];
         if (!e.exists) revert EventNotFound();

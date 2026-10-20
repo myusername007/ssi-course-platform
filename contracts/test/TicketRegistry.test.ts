@@ -161,30 +161,56 @@ describe("TicketRegistry", function () {
     });
   });
 
-  describe("markUsed", function () {
+  describe("checkIn", function () {
+    const EARLY = 15 * 60; // CHECK_IN_OPENS_BEFORE
+
     beforeEach(async function () {
       await createDefaultEvent();
       await tickets.connect(alice).buyTicket(EVENT, { value: PRICE });
     });
 
-    it("marks a ticket used and emits TicketUsed", async function () {
-      await expect(tickets.markUsed(1)).to.emit(tickets, "TicketUsed").withArgs(1, EVENT);
+    it("exposes the check-in window length", async function () {
+      expect(await tickets.CHECK_IN_OPENS_BEFORE()).to.equal(EARLY);
+    });
+
+    it("lets the holder check in during the window and emits TicketUsed", async function () {
+      await time.increaseTo(startsAt);
+      await expect(tickets.connect(alice).checkIn(1)).to.emit(tickets, "TicketUsed").withArgs(1, EVENT);
       expect((await tickets.ticketInfo(1)).used).to.equal(true);
     });
 
-    it("is restricted to the organizer", async function () {
-      await expect(tickets.connect(alice).markUsed(1))
-        .to.be.revertedWithCustomError(tickets, "NotOwner");
+    it("opens exactly 15 minutes before the start, not earlier", async function () {
+      await time.increaseTo(startsAt - EARLY - 5);
+      await expect(tickets.connect(alice).checkIn(1)).to.be.revertedWithCustomError(tickets, "CheckInNotOpen");
+      await time.increaseTo(startsAt - EARLY);
+      await tickets.connect(alice).checkIn(1);
+      expect((await tickets.ticketInfo(1)).used).to.equal(true);
+    });
+
+    it("closes when the event ends", async function () {
+      await time.increaseTo(endsAt);
+      await expect(tickets.connect(alice).checkIn(1)).to.be.revertedWithCustomError(tickets, "EventEnded");
+    });
+
+    it("works only for the holder, not for the organizer or anyone else", async function () {
+      await time.increaseTo(startsAt);
+      await expect(tickets.connect(bob).checkIn(1)).to.be.revertedWithCustomError(tickets, "NotTicketHolder");
+      await expect(tickets.connect(organizer).checkIn(1)).to.be.revertedWithCustomError(tickets, "NotTicketHolder");
     });
 
     it("cannot be applied twice", async function () {
-      await tickets.markUsed(1);
-      await expect(tickets.markUsed(1)).to.be.revertedWithCustomError(tickets, "AlreadyUsed");
+      await time.increaseTo(startsAt);
+      await tickets.connect(alice).checkIn(1);
+      await expect(tickets.connect(alice).checkIn(1)).to.be.revertedWithCustomError(tickets, "AlreadyUsed");
     });
 
     it("reverts for a ticket that does not exist", async function () {
-      await expect(tickets.markUsed(42)).to.be.revertedWithCustomError(tickets, "TicketNotFound");
+      await expect(tickets.connect(alice).checkIn(42)).to.be.revertedWithCustomError(tickets, "TicketNotFound");
       await expect(tickets.ticketInfo(42)).to.be.revertedWithCustomError(tickets, "TicketNotFound");
+    });
+
+    it("no longer has an organizer-side markUsed", async function () {
+      expect((tickets as unknown as Record<string, unknown>).markUsed).to.equal(undefined);
     });
   });
 
@@ -196,7 +222,8 @@ describe("TicketRegistry", function () {
     });
 
     it("is not allowed before the event ends", async function () {
-      await tickets.markUsed(1);
+      await time.increaseTo(startsAt);
+      await tickets.connect(alice).checkIn(1);
       await expect(tickets.connect(alice).rateEvent(EVENT, 5))
         .to.be.revertedWithCustomError(tickets, "EventNotFinished");
     });
@@ -207,14 +234,15 @@ describe("TicketRegistry", function () {
         .to.be.revertedWithCustomError(tickets, "NoTicket");
     });
 
-    it("is not allowed if the ticket was never used (did not attend)", async function () {
+    it("is not allowed if the holder never checked in (did not attend)", async function () {
       await time.increaseTo(endsAt);
       await expect(tickets.connect(alice).rateEvent(EVENT, 5))
         .to.be.revertedWithCustomError(tickets, "NotAttended");
     });
 
     it("rejects scores outside 1..5", async function () {
-      await tickets.markUsed(1);
+      await time.increaseTo(startsAt);
+      await tickets.connect(alice).checkIn(1);
       await time.increaseTo(endsAt);
       await expect(tickets.connect(alice).rateEvent(EVENT, 0))
         .to.be.revertedWithCustomError(tickets, "InvalidScore");
@@ -223,8 +251,9 @@ describe("TicketRegistry", function () {
     });
 
     it("records a rating, emits EventRated and aggregates", async function () {
-      await tickets.markUsed(1);
-      await tickets.markUsed(2);
+      await time.increaseTo(startsAt);
+      await tickets.connect(alice).checkIn(1);
+      await tickets.connect(bob).checkIn(2);
       await time.increaseTo(endsAt);
 
       await expect(tickets.connect(alice).rateEvent(EVENT, 5))
@@ -239,7 +268,8 @@ describe("TicketRegistry", function () {
     });
 
     it("allows only one rating per holder", async function () {
-      await tickets.markUsed(1);
+      await time.increaseTo(startsAt);
+      await tickets.connect(alice).checkIn(1);
       await time.increaseTo(endsAt);
       await tickets.connect(alice).rateEvent(EVENT, 4);
       await expect(tickets.connect(alice).rateEvent(EVENT, 5))
