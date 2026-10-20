@@ -5,6 +5,7 @@ import { useWallet } from "../contexts/WalletContext";
 import { useEventsChain } from "../hooks/useEventsChain";
 import { useTicketInfos } from "../hooks/useTicketInfos";
 import { EventView } from "../lib/events";
+import { CardSkeleton } from "./Skeleton";
 import TicketItem from "./TicketItem";
 import WalletBar from "./WalletBar";
 
@@ -23,13 +24,15 @@ export default function MyTickets({ events }: { events: EventView[] }) {
   const { data: infos } = useTicketInfos(mine.map((m) => m.ticketId));
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+    <main className="page-enter mx-auto max-w-5xl px-4 py-12 sm:px-6">
       <WalletBar title="Мої квитки" />
 
       {!address ? (
         <p className="text-muted">Підключіть гаманець, щоб побачити свої квитки.</p>
       ) : loading ? (
-        <p className="text-muted">Завантаження квитків...</p>
+        <div className="grid gap-5 md:grid-cols-2">
+          <CardSkeleton />
+        </div>
       ) : failed && mine.length === 0 ? (
         <p className="text-muted">Дані контракту тимчасово недоступні. Спробуйте оновити сторінку через кілька секунд.</p>
       ) : mine.length === 0 ? (

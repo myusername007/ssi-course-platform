@@ -11,7 +11,7 @@ const FORMATS = ["Усі формати", "Онлайн", "Офлайн"];
 
 export default function Catalog({ events }: { events: EventView[] }) {
   const { address } = useWallet();
-  const { data, failed } = useEventsChain(
+  const { data, failed, loading } = useEventsChain(
     events.map((e) => e.id),
     address
   );
@@ -29,7 +29,7 @@ export default function Catalog({ events }: { events: EventView[] }) {
     }`;
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+    <main className="page-enter mx-auto max-w-5xl px-4 py-12 sm:px-6">
       <WalletBar title="Заходи" />
 
       <div className="mb-6 flex flex-wrap gap-2">
@@ -57,7 +57,7 @@ export default function Catalog({ events }: { events: EventView[] }) {
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((event) => (
-            <EventCard key={event.id} event={event} chain={data[event.id]} />
+            <EventCard key={event.id} event={event} chain={data[event.id]} loading={loading} />
           ))}
         </div>
       )}

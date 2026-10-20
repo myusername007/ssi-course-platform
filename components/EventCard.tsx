@@ -8,11 +8,12 @@ import { EventChain } from "../lib/readChain";
 interface Props {
   event: EventView;
   chain?: EventChain;
+  loading?: boolean;
 }
 
 const badge = "rounded-full bg-surface-muted px-3 py-1 text-xs font-medium text-muted";
 
-export default function EventCard({ event, chain }: Props) {
+export default function EventCard({ event, chain, loading = false }: Props) {
   const nowSec = useNowSec();
   const rating = chain ? averageRating(chain.ratingSum, chain.ratingCount) : null;
 
@@ -53,7 +54,11 @@ export default function EventCard({ event, chain }: Props) {
           <p className="text-base font-semibold text-foreground">
             {formatEth(chain ? chain.price : event.priceWei)}
           </p>
-          {availability && <p className="text-xs text-muted">{availability}</p>}
+          {availability ? (
+            <p className="text-xs text-muted">{availability}</p>
+          ) : (
+            loading && <div className="mt-1 h-3 w-24 animate-pulse rounded-full bg-surface-muted" />
+          )}
         </div>
         {rating && <p className="text-xs text-muted">Оцінка {rating} ({chain?.ratingCount})</p>}
       </div>

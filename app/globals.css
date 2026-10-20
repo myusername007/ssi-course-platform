@@ -57,3 +57,29 @@ body {
   font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "SF Pro Text",
     "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
+
+/* Soft entrance for page content; skeletons (loading.tsx) show instantly and
+   the real content fades in over them instead of popping in. */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.page-enter {
+  animation: page-enter 280ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter {
+    animation: none;
+  }
+  .animate-pulse {
+    animation: none;
+  }
+}

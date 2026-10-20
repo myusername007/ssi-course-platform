@@ -43,7 +43,7 @@ export default function EventDetail({ event }: { event: EventView }) {
   else if (state === "saving") label = "Зберігаємо квиток...";
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+    <main className="page-enter mx-auto max-w-5xl px-4 py-12 sm:px-6">
       <WalletBar />
       <div className="mx-auto max-w-2xl">
         <Link href="/" className="text-sm font-medium text-accent hover:opacity-80">
