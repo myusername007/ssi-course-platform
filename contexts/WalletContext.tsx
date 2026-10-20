@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useState, ReactNode } from "react";
 import { ethers } from "ethers";
-import { COURSE_REGISTRY_ADDRESS, COURSE_REGISTRY_ABI } from "../lib/contracts";
+import { TICKET_REGISTRY_ADDRESS, TICKET_REGISTRY_ABI } from "../lib/contracts";
 
 interface EthereumProvider {
   request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
@@ -46,7 +46,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const contract = new ethers.Contract(COURSE_REGISTRY_ADDRESS, COURSE_REGISTRY_ABI, provider);
+      const contract = new ethers.Contract(TICKET_REGISTRY_ADDRESS, TICKET_REGISTRY_ABI, provider);
       const result: boolean = await contract.isVerified(addr);
       setVerified(result);
     } catch (err) {

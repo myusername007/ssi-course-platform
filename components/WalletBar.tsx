@@ -2,19 +2,26 @@
 
 import { useWallet } from "../contexts/WalletContext";
 
-export default function WalletBar() {
+interface Props {
+  title?: string;
+  subtitle?: string;
+}
+
+export default function WalletBar({ title, subtitle }: Props) {
   const { address, connecting, checkingVerification, verified, error, connectWallet, openSsiVerificationPopup } =
     useWallet();
 
   return (
     <div className="mb-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">Каталог курсів</h1>
-          <p className="mt-1 text-sm text-muted">
-            Запис відкритий для гаманців із підтвердженою SSI-ідентичністю.
-          </p>
-        </div>
+        {title ? (
+          <div>
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">{title}</h1>
+            {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
+          </div>
+        ) : (
+          <div />
+        )}
 
         {address ? (
           <span className="rounded-full bg-surface-muted px-4 py-2 text-sm font-mono text-foreground">
@@ -36,13 +43,13 @@ export default function WalletBar() {
           {checkingVerification && <p className="text-sm text-muted">Перевірка верифікації...</p>}
           {!checkingVerification && verified === true && (
             <p className="inline-flex items-center gap-2 rounded-full bg-success-bg px-4 py-2 text-sm font-medium text-success">
-              Верифіковано — SSI-ідентичність підтверджена
+              Верифіковано: ідентичність підтверджена
             </p>
           )}
           {!checkingVerification && verified === false && (
             <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-warning-bg px-5 py-4">
               <p className="text-sm font-medium text-warning">
-                Не верифіковано — потрібна зареєстрована SSI-ідентичність
+                Не верифіковано: для купівлі квитка потрібна зареєстрована ідентичність
               </p>
               <button
                 onClick={openSsiVerificationPopup}
