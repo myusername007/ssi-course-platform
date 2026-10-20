@@ -30,10 +30,7 @@ export default function Catalog({ events }: { events: EventView[] }) {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-      <WalletBar
-        title="Заходи"
-        subtitle="Квиток може придбати лише гаманець із підтвердженою SSI-ідентичністю. Імʼя та інші персональні дані не передаються."
-      />
+      <WalletBar title="Заходи" />
 
       <div className="mb-6 flex flex-wrap gap-2">
         {categories.map((c) => (

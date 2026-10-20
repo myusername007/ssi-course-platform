@@ -93,7 +93,7 @@ export default function EventDetail({ event }: { event: EventView }) {
           <div className="mt-8">
             {hasTicket ? (
               <p className="rounded-2xl bg-success-bg px-5 py-4 text-sm font-medium text-success">
-                У вас є квиток на цю подію (№{chain?.ticketId}). Він привʼязаний до вашої ідентичності і не передається.
+                У вас є квиток на цю подію (№{chain?.ticketId}).
               </p>
             ) : (
               <button
@@ -109,10 +109,7 @@ export default function EventDetail({ event }: { event: EventView }) {
               <p className="mt-3 text-sm text-muted">Спробуйте оновити сторінку через кілька секунд.</p>
             )}
             {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-            <p className="mt-4 text-xs text-muted">
-              Оплата в тестових монетах мережі Sepolia. Сервіс отримує лише адресу вашого гаманця, без імені чи інших
-              персональних даних.
-            </p>
+            <p className="mt-4 text-xs text-muted">Оплата в тестових монетах мережі Sepolia.</p>
           </div>
         </div>
       </div>
