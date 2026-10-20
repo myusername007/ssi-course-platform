@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { WalletProvider } from "../contexts/WalletContext";
+import SiteNav from "../components/SiteNav";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SSI Course Platform",
-  description: "Реєстрація на курси з верифікацією через MetaMask і SSI",
+  title: "Квитки на ІТ-заходи",
+  description: "Квитки на ІТ-заходи з верифікацією покупця через самосуверенну ідентичність",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -25,7 +26,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background">
-        <WalletProvider>{children}</WalletProvider>
+        <WalletProvider>
+          <SiteNav />
+          {children}
+        </WalletProvider>
       </body>
     </html>
   );

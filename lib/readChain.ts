@@ -108,3 +108,29 @@ export async function readEventsChain(
   });
   return out;
 }
+
+export interface TicketChain {
+  owner: string;
+  eventId: number;
+  used: boolean;
+}
+
+/** Owner, event and "used" flag of the given tickets, in one request. */
+export async function readTicketInfos(ticketIds: number[]): Promise<Record<number, TicketChain>> {
+  if (ticketIds.length === 0) return {};
+  const calls = ticketIds.map((id) => ({
+    target: TICKET_REGISTRY_ADDRESS,
+    allowFailure: true,
+    callData: ticketIface.encodeFunctionData("ticketInfo", [id]),
+  }));
+  const raw = await rawCall(MULTICALL3, multicallIface.encodeFunctionData("aggregate3", [calls]));
+  const results = multicallIface.decodeFunctionResult("aggregate3", raw)[0] as { success: boolean; returnData: string }[];
+
+  const out: Record<number, TicketChain> = {};
+  ticketIds.forEach((id, i) => {
+    if (!results[i].success) return;
+    const t = ticketIface.decodeFunctionResult("ticketInfo", results[i].returnData);
+    out[id] = { owner: t.ticketOwner, eventId: Number(t.eventId), used: t.used };
+  });
+  return out;
+}
