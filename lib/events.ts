@@ -7,8 +7,6 @@ export interface EventView {
   description: string;
   longDescription: string;
   category: string;
-  format: string;
-  location: string | null;
   startsAt: string; // ISO
   endsAt: string; // ISO
   priceWei: string;
@@ -21,8 +19,6 @@ interface EventRow {
   description: string;
   longDescription: string;
   category: string;
-  format: string;
-  location: string | null;
   startsAt: Date;
   endsAt: Date;
   priceWei: string;
@@ -36,8 +32,6 @@ export function toEventView(e: EventRow): EventView {
     description: e.description,
     longDescription: e.longDescription,
     category: e.category,
-    format: e.format,
-    location: e.location,
     startsAt: e.startsAt.toISOString(),
     endsAt: e.endsAt.toISOString(),
     priceWei: e.priceWei,

@@ -1,7 +1,8 @@
 // Draws a ticket as a PNG in the browser. The QR code only identifies the
-// ticket (number and event); it is NOT proof of ownership — entering needs
-// an entry code signed by the owner's wallet (lib/entryCode.ts). Nothing
-// personal is drawn: no name, only the shortened wallet address.
+// ticket (number and event); it is NOT proof of ownership — the join link is
+// issued by the server only after a signature from the owner's wallet
+// (lib/access.ts). Nothing personal is drawn: no name, only the shortened
+// wallet address.
 import QRCode from "qrcode";
 
 export interface TicketImageData {

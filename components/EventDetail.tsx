@@ -53,7 +53,7 @@ export default function EventDetail({ event }: { event: EventView }) {
         <div className="mt-6 rounded-3xl bg-surface p-8 shadow-sm ring-1 ring-border">
           <div className="flex flex-wrap gap-2">
             <span className={badge}>{event.category}</span>
-            <span className={badge}>{event.format}</span>
+            <span className={badge}>Онлайн</span>
           </div>
 
           <h1 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">{event.title}</h1>
@@ -64,8 +64,6 @@ export default function EventDetail({ event }: { event: EventView }) {
             <dd className="text-muted">{formatEventDate(event.startsAt)}</dd>
             <dt className="font-medium text-foreground">Завершення</dt>
             <dd className="text-muted">{formatEventDate(event.endsAt)}</dd>
-            <dt className="font-medium text-foreground">Місце</dt>
-            <dd className="text-muted">{event.location ?? "Онлайн-трансляція"}</dd>
             <dt className="font-medium text-foreground">Ціна</dt>
             <dd className="text-muted">{formatEth(chain ? chain.price : event.priceWei)}</dd>
             {chain && (
@@ -92,9 +90,12 @@ export default function EventDetail({ event }: { event: EventView }) {
 
           <div className="mt-8">
             {hasTicket ? (
-              <p className="rounded-2xl bg-success-bg px-5 py-4 text-sm font-medium text-success">
-                У вас є квиток на цю подію (№{chain?.ticketId}).
-              </p>
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-success-bg px-5 py-4">
+                <p className="text-sm font-medium text-success">У вас є квиток на цю подію (№{chain?.ticketId}).</p>
+                <Link href="/tickets" className="text-sm font-medium text-success underline hover:opacity-80">
+                  Мої квитки
+                </Link>
+              </div>
             ) : (
               <button
                 onClick={onBuy}

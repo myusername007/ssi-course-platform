@@ -58,28 +58,37 @@ export interface EventChain {
   ratingCount: number;
   /** ticket id held by the connected address for this event, 0 if none */
   ticketId: number;
+  /** score the connected address gave to this event, 0 if not rated */
+  myRating: number;
 }
 
 /**
- * Reads eventInfo, getRating and (if an address is given) ticketOf for every
- * event in a single request. Events whose reads fail are left out of the result.
+ * Reads eventInfo, getRating and (if an address is given) ticketOf and ratingOf
+ * for every event in a single request. Events whose reads fail are left out of the result.
  */
 export async function readEventsChain(
   eventIds: number[],
   address: string | null
 ): Promise<Record<number, EventChain>> {
-  const perEvent = address ? 3 : 2;
+  const perEvent = address ? 4 : 2;
   const calls = eventIds.flatMap((id) => {
     const list = [
       { target: TICKET_REGISTRY_ADDRESS, allowFailure: true, callData: ticketIface.encodeFunctionData("eventInfo", [id]) },
       { target: TICKET_REGISTRY_ADDRESS, allowFailure: true, callData: ticketIface.encodeFunctionData("getRating", [id]) },
     ];
     if (address) {
-      list.push({
-        target: TICKET_REGISTRY_ADDRESS,
-        allowFailure: true,
-        callData: ticketIface.encodeFunctionData("ticketOf", [address, id]),
-      });
+      list.push(
+        {
+          target: TICKET_REGISTRY_ADDRESS,
+          allowFailure: true,
+          callData: ticketIface.encodeFunctionData("ticketOf", [address, id]),
+        },
+        {
+          target: TICKET_REGISTRY_ADDRESS,
+          allowFailure: true,
+          callData: ticketIface.encodeFunctionData("ratingOf", [id, address]),
+        }
+      );
     }
     return list;
   });
@@ -89,11 +98,12 @@ export async function readEventsChain(
 
   const out: Record<number, EventChain> = {};
   eventIds.forEach((id, i) => {
-    const [infoRes, ratingRes, ticketRes] = results.slice(i * perEvent, i * perEvent + perEvent);
-    if (!infoRes.success || !ratingRes.success || (address && !ticketRes.success)) return;
+    const [infoRes, ratingRes, ticketRes, myRatingRes] = results.slice(i * perEvent, i * perEvent + perEvent);
+    if (!infoRes.success || !ratingRes.success || (address && (!ticketRes.success || !myRatingRes.success))) return;
     const info = ticketIface.decodeFunctionResult("eventInfo", infoRes.returnData);
     const rating = ticketIface.decodeFunctionResult("getRating", ratingRes.returnData);
     const ticketId = address ? ticketIface.decodeFunctionResult("ticketOf", ticketRes.returnData)[0] : 0;
+    const myRating = address ? ticketIface.decodeFunctionResult("ratingOf", myRatingRes.returnData)[0] : 0;
     out[id] = {
       price: info.price,
       capacity: Number(info.capacity),
@@ -104,6 +114,7 @@ export async function readEventsChain(
       ratingSum: Number(rating.sum),
       ratingCount: Number(rating.count),
       ticketId: Number(ticketId),
+      myRating: Number(myRating),
     };
   });
   return out;

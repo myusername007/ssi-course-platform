@@ -58,3 +58,6 @@ contracts/artifacts
 contracts/typechain-types
 contracts/coverage
 contracts/*.tsbuildinfo
+
+# demo events created for live testing (hold join links); see contracts/scripts/create-demo-event.ts
+data/demo-events.json

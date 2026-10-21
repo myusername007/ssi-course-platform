@@ -10,7 +10,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
   const eventId = Number(id);
   if (!Number.isInteger(eventId)) notFound();
 
-  const event = await prisma.event.findUnique({ where: { id: eventId } });
+  const event = await prisma.event.findUnique({ where: { id: eventId }, omit: { meetingUrl: true } });
   if (!event) notFound();
 
   return <EventDetail event={toEventView(event)} />;

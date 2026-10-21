@@ -7,8 +7,6 @@ import { EventView } from "../lib/events";
 import EventCard from "./EventCard";
 import WalletBar from "./WalletBar";
 
-const FORMATS = ["Усі формати", "Онлайн", "Офлайн"];
-
 export default function Catalog({ events }: { events: EventView[] }) {
   const { address } = useWallet();
   const { data, failed, loading } = useEventsChain(
@@ -16,12 +14,9 @@ export default function Catalog({ events }: { events: EventView[] }) {
     address
   );
   const [category, setCategory] = useState("Усі");
-  const [format, setFormat] = useState(FORMATS[0]);
 
   const categories = ["Усі", ...Array.from(new Set(events.map((e) => e.category)))];
-  const visible = events.filter(
-    (e) => (category === "Усі" || e.category === category) && (format === FORMATS[0] || e.format === format)
-  );
+  const visible = events.filter((e) => category === "Усі" || e.category === category);
 
   const chip = (active: boolean) =>
     `rounded-full px-4 py-2 text-sm font-medium transition-colors ${
@@ -38,12 +33,6 @@ export default function Catalog({ events }: { events: EventView[] }) {
             {c}
           </button>
         ))}
-        <span className="mx-2 hidden w-px bg-border sm:block" />
-        {FORMATS.map((f) => (
-          <button key={f} onClick={() => setFormat(f)} className={chip(format === f)}>
-            {f}
-          </button>
-        ))}
       </div>
 
       {failed && (
@@ -53,7 +42,7 @@ export default function Catalog({ events }: { events: EventView[] }) {
       )}
 
       {visible.length === 0 ? (
-        <p className="text-muted">За цими фільтрами заходів немає.</p>
+        <p className="text-muted">У цій категорії заходів немає.</p>
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((event) => (

@@ -5,6 +5,6 @@ import MyTickets from "../../components/MyTickets";
 export const dynamic = "force-dynamic";
 
 export default async function TicketsPage() {
-  const events = await prisma.event.findMany({ orderBy: { startsAt: "asc" } });
+  const events = await prisma.event.findMany({ orderBy: { startsAt: "asc" }, omit: { meetingUrl: true } });
   return <MyTickets events={events.map(toEventView)} />;
 }

@@ -13,7 +13,7 @@ import WalletBar from "./WalletBar";
 // ticket whose purchase was never saved to the cache still shows up.
 export default function MyTickets({ events }: { events: EventView[] }) {
   const { address } = useWallet();
-  const { data, loading, failed } = useEventsChain(
+  const { data, loading, failed, patch } = useEventsChain(
     events.map((e) => e.id),
     address
   );
@@ -45,7 +45,19 @@ export default function MyTickets({ events }: { events: EventView[] }) {
       ) : (
         <div className="grid gap-5 md:grid-cols-2">
           {mine.map(({ event, ticketId }) => (
-            <TicketItem key={ticketId} event={event} ticketId={ticketId} owner={address} info={infos[ticketId]} />
+            <TicketItem
+              key={ticketId}
+              event={event}
+              ticketId={ticketId}
+              owner={address}
+              info={infos[ticketId]}
+              chain={data[event.id]}
+              onRated={(score) => {
+                const c = data[event.id];
+                if (!c) return;
+                patch(event.id, { myRating: score, ratingSum: c.ratingSum + score, ratingCount: c.ratingCount + 1 });
+              }}
+            />
           ))}
         </div>
       )}

@@ -31,7 +31,6 @@ export default function EventCard({ event, chain, loading = false }: Props) {
     >
       <div className="flex flex-wrap gap-2">
         <span className={badge}>{event.category}</span>
-        <span className={badge}>{event.format}</span>
         {chain && chain.ticketId > 0 && (
           <span className="rounded-full bg-success-bg px-3 py-1 text-xs font-medium text-success">
             Квиток придбано
@@ -44,10 +43,7 @@ export default function EventCard({ event, chain, loading = false }: Props) {
         <p className="mt-2 text-sm text-muted">{event.description}</p>
       </div>
 
-      <div className="space-y-1 text-xs text-muted">
-        <p>{formatEventDate(event.startsAt)}</p>
-        <p>{event.location ?? "Онлайн-трансляція"}</p>
-      </div>
+      <p className="text-xs text-muted">{formatEventDate(event.startsAt)}</p>
 
       <div className="flex items-end justify-between gap-3">
         <div>
