@@ -125,7 +125,8 @@ export async function POST(request: NextRequest) {
 }
 
 // GET /api/tickets?address=0x… — cached tickets of an address, with their
-// events. Addresses are public on-chain; no personal data is involved.
+// events (without the secret join link). Addresses are public on-chain; no
+// personal data is involved.
 export async function GET(request: NextRequest) {
   const address = request.nextUrl.searchParams.get("address");
   if (!address || !ethers.utils.isAddress(address)) {
@@ -133,7 +134,7 @@ export async function GET(request: NextRequest) {
   }
   const tickets = await prisma.ticket.findMany({
     where: { ownerAddress: ethers.utils.getAddress(address) },
-    include: { event: true },
+    include: { event: { omit: { meetingUrl: true } } },
     orderBy: { event: { startsAt: "asc" } },
   });
   return NextResponse.json({ tickets });

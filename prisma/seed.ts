@@ -20,6 +20,7 @@ interface EventSeed {
   category: string;
   format: string;
   location: string | null;
+  meetingUrl: string;
   startsAt: string;
   endsAt: string;
   priceEth: string;
@@ -39,6 +40,7 @@ async function main() {
       category: e.category,
       format: e.format,
       location: e.location,
+      meetingUrl: e.meetingUrl,
       startsAt: new Date(e.startsAt),
       endsAt: new Date(e.endsAt),
       priceWei: ethers.utils.parseEther(e.priceEth).toString(),

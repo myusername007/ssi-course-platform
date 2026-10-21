@@ -49,7 +49,11 @@ model Enrollment {
 /// TicketRegistry.sol. `id` is the same number the event has on-chain, so it is
 /// assigned by hand (see data/events.json), not auto-incremented. The price,
 /// capacity and times are also stored on-chain, which is the source of truth;
-/// the descriptive fields only exist here.
+/// the descriptive fields only exist here. Every event is online: `meetingUrl`
+/// is the secret join link, handed out only by /api/events/[id]/access after
+/// the server has checked the holder's ticket on-chain — it must never be
+/// returned by any public endpoint. `format` and `location` are left over from
+/// the offline design and are dropped in the final cleanup migration.
 model Event {
   id              Int      @id
   title           String
@@ -58,6 +62,7 @@ model Event {
   category        String
   format          String
   location        String?
+  meetingUrl      String?
   startsAt        DateTime
   endsAt          DateTime
   /// Exact on-chain price in wei, as a string (too large for a JS number).

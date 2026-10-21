@@ -2,16 +2,17 @@
 // existing contract from the SSI dApp; only ever read.
 export const IDENTITY_REGISTRY_ADDRESS = "0xBdd500644fff1693f14f3853DB1fa5fba5BC2558";
 
-// TicketRegistry (contracts/contracts/TicketRegistry.sol), deployed once to
+// TicketRegistry v2 (contracts/contracts/TicketRegistry.sol), deployed to
 // Sepolia by contracts/scripts/deploy-tickets.ts. Same address as
-// contracts/deployments.json.
-export const TICKET_REGISTRY_ADDRESS = "0x14F749672AB73F16EAaEffAAc91c864B3Acc4852";
+// `ticketRegistry` in contracts/deployments.json.
+export const TICKET_REGISTRY_ADDRESS = "0x0b76497488Fac77C9ef2B74797080e3FBe7b7C74";
 
 export const TICKET_REGISTRY_ABI = [
   "function owner() view returns (address)",
   "function isVerified(address user) view returns (bool)",
   "function buyTicket(uint256 eventId) payable returns (uint256 ticketId)",
-  "function markUsed(uint256 ticketId)",
+  "function checkIn(uint256 ticketId)",
+  "function CHECK_IN_OPENS_BEFORE() view returns (uint64)",
   "function rateEvent(uint256 eventId, uint8 score)",
   "function eventInfo(uint256 eventId) view returns (uint256 price, uint32 capacity, uint32 sold, uint64 startsAt, uint64 endsAt, bool exists)",
   "function ticketInfo(uint256 ticketId) view returns (address ticketOwner, uint256 eventId, bool used)",
@@ -32,6 +33,9 @@ export const TICKET_REGISTRY_ABI = [
   "error WrongPayment()",
   "error TicketNotFound()",
   "error AlreadyUsed()",
+  "error NotTicketHolder()",
+  "error CheckInNotOpen()",
+  "error EventEnded()",
   "error NoTicket()",
   "error EventNotFinished()",
   "error NotAttended()",
