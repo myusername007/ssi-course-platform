@@ -88,8 +88,9 @@ export function useTicketActions(owner: string) {
       }
       setStep("signing");
       const url = await requestLink(signer, eventId, !alreadyCheckedIn, () => setStep("verifying"));
+      // not opened automatically: after several wallet confirmations the browser
+      // no longer treats it as a user click and blocks the pop-up
       setLink(url);
-      window.open(url, "_blank", "noopener,noreferrer");
     } catch (err) {
       console.error("Помилка приєднання до події:", err);
       setError(err instanceof AccessError ? err.message : describeError(err, "Не вдалося приєднатися до події."));

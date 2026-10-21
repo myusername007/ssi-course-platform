@@ -94,30 +94,29 @@ export default function TicketItem({ event, ticketId, owner, info, chain, onRate
         <button onClick={download} className={`${button} bg-surface-muted text-foreground`}>
           Завантажити квиток
         </button>
-        {!ended && joinOpen && (
+        {!ended && joinOpen && link && (
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`${button} bg-success text-white`}
+          >
+            Відкрити трансляцію ↗
+          </a>
+        )}
+        {!ended && joinOpen && !link && (
           <button
             onClick={() => join(ticketId, event.id, joined, () => setCheckedIn(true))}
             disabled={busy}
             className={`${button} bg-foreground text-background`}
           >
-            {busy ? STEP_LABEL[step] : joined ? "Відкрити трансляцію" : "Приєднатися до події"}
+            {busy ? STEP_LABEL[step] : joined ? "Приєднатися до трансляції" : "Приєднатися до події"}
           </button>
         )}
         {!ended && !joinOpen && (
           <p className="text-sm text-muted">Приєднатися можна за 15 хвилин до початку.</p>
         )}
       </div>
-
-      {link && (
-        <a
-          href={link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 block rounded-2xl bg-success-bg px-5 py-3 text-sm font-medium text-success hover:opacity-90"
-        >
-          Відкрити трансляцію ↗
-        </a>
-      )}
 
       {ended && joined && (
         <div className="mt-5 rounded-2xl bg-surface-muted p-4">

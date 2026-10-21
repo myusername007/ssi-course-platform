@@ -8,8 +8,17 @@ interface Props {
 }
 
 export default function WalletBar({ title, subtitle }: Props) {
-  const { address, connecting, checkingVerification, verified, error, connectWallet, openSsiVerificationPopup } =
-    useWallet();
+  const {
+    address,
+    connecting,
+    checkingVerification,
+    verified,
+    error,
+    wrongNetwork,
+    switchToSepolia,
+    connectWallet,
+    openSsiVerificationPopup,
+  } = useWallet();
 
   return (
     <div className="mb-8">
@@ -63,6 +72,14 @@ export default function WalletBar({ title, subtitle }: Props) {
       )}
 
       {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      {wrongNetwork && (
+        <button
+          onClick={switchToSepolia}
+          className="mt-3 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground transition-opacity hover:opacity-90"
+        >
+          Перемкнути на Sepolia
+        </button>
+      )}
     </div>
   );
 }

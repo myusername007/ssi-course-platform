@@ -24,9 +24,13 @@ interface WalletContextValue {
   checkingVerification: boolean;
   verified: boolean | null;
   error: string | null;
+  wrongNetwork: boolean;
+  switchToSepolia: () => Promise<void>;
   connectWallet: () => Promise<void>;
   openSsiVerificationPopup: () => void;
 }
+
+const SEPOLIA_CHAIN_ID = 11155111;
 
 const WalletContext = createContext<WalletContextValue | null>(null);
 
@@ -39,13 +43,24 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [checkingVerification, setCheckingVerification] = useState(false);
   const [verified, setVerified] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [wrongNetwork, setWrongNetwork] = useState(false);
 
   const refreshVerification = useCallback(async (addr: string) => {
     if (!window.ethereum) return;
     setCheckingVerification(true);
     setError(null);
+    setWrongNetwork(false);
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
+      // On any other network the contract address holds nothing and the call
+      // fails with an unhelpful error, so name the real cause.
+      const { chainId } = await provider.getNetwork();
+      if (chainId !== SEPOLIA_CHAIN_ID) {
+        setError(`MetaMask підключено не до мережі Sepolia (id мережі: ${chainId}).`);
+        setWrongNetwork(true);
+        setVerified(null);
+        return;
+      }
       const contract = new ethers.Contract(TICKET_REGISTRY_ADDRESS, TICKET_REGISTRY_ABI, provider);
       const result: boolean = await contract.isVerified(addr);
       setVerified(result);
@@ -57,6 +72,22 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       setCheckingVerification(false);
     }
   }, []);
+
+  const switchToSepolia = useCallback(async () => {
+    if (!window.ethereum) return;
+    try {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0xaa36a7" }],
+      });
+      // the chainChanged listener re-checks verification; do it here too in
+      // case the wallet does not emit the event
+      if (address) await refreshVerification(address);
+    } catch (err) {
+      console.error("Не вдалося перемкнути мережу:", err);
+      setError("Не вдалося перемкнути мережу. Виберіть Sepolia вручну в MetaMask.");
+    }
+  }, [address, refreshVerification]);
 
   const connectWallet = useCallback(async () => {
     setError(null);
@@ -99,11 +130,17 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         refreshVerification(accounts[0]);
       }
     };
+    // switching network in MetaMask: check again with the current account
+    const handleChainChanged = () => {
+      if (address) refreshVerification(address);
+    };
     window.ethereum.on("accountsChanged", handleAccountsChanged);
+    window.ethereum.on("chainChanged", handleChainChanged);
     return () => {
       window.ethereum?.removeListener?.("accountsChanged", handleAccountsChanged);
+      window.ethereum?.removeListener?.("chainChanged", handleChainChanged);
     };
-  }, [refreshVerification]);
+  }, [address, refreshVerification]);
 
   // Listens for the SSI app's popup postMessage (see useRelyingPartyMode.ts
   // on that side). Only ever treated as a hint to re-check — the actual
@@ -136,6 +173,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         checkingVerification,
         verified,
         error,
+        wrongNetwork,
+        switchToSepolia,
         connectWallet,
         openSsiVerificationPopup,
       }}
