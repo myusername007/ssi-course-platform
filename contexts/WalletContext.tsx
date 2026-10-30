@@ -23,6 +23,8 @@ interface WalletContextValue {
   connecting: boolean;
   checkingVerification: boolean;
   verified: boolean | null;
+  /** how the identity registry's record for the address looks: no record, inconsistent hash, or valid */
+  identityStatus: "none" | "inconsistent" | "valid" | null;
   error: string | null;
   wrongNetwork: boolean;
   switchToSepolia: () => Promise<void>;
@@ -42,6 +44,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [connecting, setConnecting] = useState(false);
   const [checkingVerification, setCheckingVerification] = useState(false);
   const [verified, setVerified] = useState<boolean | null>(null);
+  const [identityStatus, setIdentityStatus] = useState<"none" | "inconsistent" | "valid" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [wrongNetwork, setWrongNetwork] = useState(false);
 
@@ -59,15 +62,18 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         setError(`MetaMask підключено не до мережі Sepolia (id мережі: ${chainId}).`);
         setWrongNetwork(true);
         setVerified(null);
+        setIdentityStatus(null);
         return;
       }
       const contract = new ethers.Contract(TICKET_REGISTRY_ADDRESS, TICKET_REGISTRY_ABI, provider);
-      const result: boolean = await contract.isVerified(addr);
-      setVerified(result);
+      const status = Number(await contract.verificationStatus(addr)); // 0 none, 1 inconsistent, 2 valid
+      setIdentityStatus(status === 2 ? "valid" : status === 1 ? "inconsistent" : "none");
+      setVerified(status === 2);
     } catch (err) {
       console.error("Помилка перевірки стану на контракті:", err);
       setError("Не вдалося перевірити статус верифікації.");
       setVerified(null);
+      setIdentityStatus(null);
     } finally {
       setCheckingVerification(false);
     }
@@ -125,6 +131,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       if (accounts.length === 0) {
         setAddress(null);
         setVerified(null);
+        setIdentityStatus(null);
       } else {
         setAddress(accounts[0]);
         refreshVerification(accounts[0]);
@@ -172,6 +179,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         connecting,
         checkingVerification,
         verified,
+        identityStatus,
         error,
         wrongNetwork,
         switchToSepolia,

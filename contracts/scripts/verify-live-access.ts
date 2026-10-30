@@ -2,11 +2,12 @@ import { ethers } from "hardhat";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import deployments from "../deployments.json";
+import { loadTestIdentity } from "./test-identity";
 
 // End-to-end check of the join-link endpoint against a running server and the
 // live contract, on a demo event created by create-demo-event.ts and present
-// in the server's database. The organizer wallet (verified in the identity
-// registry) buys a ticket, and the endpoint must refuse a link until the
+// in the server's database. The throwaway test-identity wallet (consistent
+// record in the identity registry) buys a ticket, and the endpoint must refuse a link until the
 // holder checks in, and hand it out right after.
 //
 //   DEMO_ID=100 BASE_URL=http://localhost:3000 npx hardhat run scripts/verify-live-access.ts --network sepolia
@@ -49,29 +50,29 @@ async function main() {
   );
   if (!demo) throw new Error(`Event ${id} is not in data/demo-events.json`);
 
-  const [organizer] = await ethers.getSigners();
-  const tickets = await ethers.getContractAt("TicketRegistry", deployments.sepolia.ticketRegistry, organizer);
+  const buyer = loadTestIdentity();
+  const tickets = await ethers.getContractAt("TicketRegistry", deployments.sepolia.ticketRegistry, buyer);
   const info = await tickets.eventInfo(id);
   const price = info.price;
 
-  let ticketId = await tickets.ticketOf(organizer.address, id);
+  let ticketId = await tickets.ticketOf(buyer.address, id);
   if (ticketId === 0n) {
     console.log(`[1] buyTicket for event ${id}`);
     await (await tickets.buyTicket(id, { value: price })).wait();
     // public nodes can lag a block behind a just-confirmed transaction
     for (let i = 0; i < 10 && ticketId === 0n; i++) {
       await sleep(3000);
-      ticketId = await tickets.ticketOf(organizer.address, id);
+      ticketId = await tickets.ticketOf(buyer.address, id);
     }
   }
   const isUsed = async () => (await retry(() => tickets.ticketInfo(ticketId))).used;
   console.log(`    ticket ${ticketId}, used=${await isUsed()}`);
 
   // the server's node may lag a block behind
-  let r = await access(organizer);
+  let r = await access(buyer);
   for (let i = 0; i < 6 && r.json?.error === "no-ticket"; i++) {
     await sleep(3000);
-    r = await access(organizer);
+    r = await access(buyer);
   }
 
   if (!(await isUsed())) {
@@ -83,10 +84,10 @@ async function main() {
 
     console.log("[3] checkIn");
     await (await tickets.checkIn(ticketId)).wait();
-    r = await access(organizer);
+    r = await access(buyer);
     for (let i = 0; i < 6 && r.json?.error === "not-checked-in"; i++) {
       await sleep(3000);
-      r = await access(organizer);
+      r = await access(buyer);
     }
   }
 

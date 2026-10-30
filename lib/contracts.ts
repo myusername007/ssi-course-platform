@@ -2,14 +2,16 @@
 // existing contract from the SSI dApp; only ever read.
 export const IDENTITY_REGISTRY_ADDRESS = "0xBdd500644fff1693f14f3853DB1fa5fba5BC2558";
 
-// TicketRegistry v2 (contracts/contracts/TicketRegistry.sol), deployed to
+// TicketRegistry v3 (contracts/contracts/TicketRegistry.sol), deployed to
 // Sepolia by contracts/scripts/deploy-tickets.ts. Same address as
-// `ticketRegistry` in contracts/deployments.json.
-export const TICKET_REGISTRY_ADDRESS = "0x0b76497488Fac77C9ef2B74797080e3FBe7b7C74";
+// `ticketRegistry` in contracts/deployments.json. v3 adds the record
+// consistency check to isVerified (verificationStatus).
+export const TICKET_REGISTRY_ADDRESS = "0x83FA8448eb0BDee2D2DA36873e7b83E970B98da5";
 
 export const TICKET_REGISTRY_ABI = [
   "function owner() view returns (address)",
   "function isVerified(address user) view returns (bool)",
+  "function verificationStatus(address user) view returns (uint8)",
   "function buyTicket(uint256 eventId) payable returns (uint256 ticketId)",
   "function checkIn(uint256 ticketId)",
   "function CHECK_IN_OPENS_BEFORE() view returns (uint64)",

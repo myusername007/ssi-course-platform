@@ -13,6 +13,7 @@ export default function WalletBar({ title, subtitle }: Props) {
     connecting,
     checkingVerification,
     verified,
+    identityStatus,
     error,
     wrongNetwork,
     switchToSepolia,
@@ -58,7 +59,9 @@ export default function WalletBar({ title, subtitle }: Props) {
           {!checkingVerification && verified === false && (
             <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-warning-bg px-5 py-4">
               <p className="text-sm font-medium text-warning">
-                Не верифіковано: для купівлі квитка потрібна зареєстрована ідентичність
+                {identityStatus === "inconsistent"
+                  ? "Запис ідентичності знайдено, але він не пройшов перевірку цілісності: хеш не збігається з CID. Перевірте профіль у SSI-додатку."
+                  : "Не верифіковано: для купівлі квитка потрібна зареєстрована ідентичність"}
               </p>
               <button
                 onClick={openSsiVerificationPopup}

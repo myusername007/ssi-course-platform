@@ -38,10 +38,69 @@ describe("TicketRegistry", function () {
     endsAt = now + 7200;
   });
 
-  describe("isVerified", function () {
+  describe("isVerified / verificationStatus", function () {
+    const DAVE_CID = "bafytestprofilecid";
+    const hashOf = (text: string) => ethers.keccak256(ethers.toUtf8Bytes(text));
+    let dave: HardhatEthersSigner;
+
+    beforeEach(async function () {
+      [, , , , dave] = await ethers.getSigners();
+    });
+
     it("reflects the identity registry", async function () {
       expect(await tickets.isVerified(alice.address)).to.equal(true);
       expect(await tickets.isVerified(carol.address)).to.equal(false);
+    });
+
+    it("reports NotRegistered for an address without a record", async function () {
+      expect(await tickets.verificationStatus(carol.address)).to.equal(0n);
+    });
+
+    it("reports Valid for a record built the way the SSI dApp builds it", async function () {
+      await mockRegistry.setIdentity(dave.address, DAVE_CID, hashOf("ipfs/" + DAVE_CID), 1_700_000_000);
+      expect(await tickets.verificationStatus(dave.address)).to.equal(2n);
+      expect(await tickets.isVerified(dave.address)).to.equal(true);
+    });
+
+    it("reports Inconsistent when the CID carries the prefix the dApp adds itself (the demo forgery)", async function () {
+      // CID stored with "ipfs/" and hashed once: the dApp recomputes
+      // keccak256("ipfs/" ++ "ipfs/...") and finds a mismatch.
+      const forgedCid = "ipfs/" + DAVE_CID;
+      await mockRegistry.setIdentity(dave.address, forgedCid, hashOf(forgedCid), 1_700_000_000);
+      expect(await tickets.verificationStatus(dave.address)).to.equal(1n);
+      expect(await tickets.isVerified(dave.address)).to.equal(false);
+    });
+
+    it("reports Inconsistent when the stored hash is simply wrong", async function () {
+      await mockRegistry.setIdentity(dave.address, DAVE_CID, hashOf("something else"), 1_700_000_000);
+      expect(await tickets.verificationStatus(dave.address)).to.equal(1n);
+    });
+
+    it("reports Inconsistent for an empty hash on a registered record", async function () {
+      await mockRegistry.setIdentity(dave.address, DAVE_CID, ethers.ZeroHash, 1_700_000_000);
+      expect(await tickets.verificationStatus(dave.address)).to.equal(1n);
+    });
+
+    it("treats a zero timestamp as NotRegistered even if the hash matches", async function () {
+      await mockRegistry.setIdentity(dave.address, DAVE_CID, hashOf("ipfs/" + DAVE_CID), 0);
+      expect(await tickets.verificationStatus(dave.address)).to.equal(0n);
+    });
+
+    it("follows the record when it is corrected", async function () {
+      const forgedCid = "ipfs/" + DAVE_CID;
+      await mockRegistry.setIdentity(dave.address, forgedCid, hashOf(forgedCid), 1_700_000_000);
+      expect(await tickets.isVerified(dave.address)).to.equal(false);
+      await mockRegistry.setIdentity(dave.address, DAVE_CID, hashOf("ipfs/" + DAVE_CID), 1_700_000_001);
+      expect(await tickets.isVerified(dave.address)).to.equal(true);
+    });
+
+    it("does not let a holder of an inconsistent record buy a ticket", async function () {
+      const forgedCid = "ipfs/" + DAVE_CID;
+      await mockRegistry.setIdentity(dave.address, forgedCid, hashOf(forgedCid), 1_700_000_000);
+      await createDefaultEvent();
+      await expect(
+        tickets.connect(dave).buyTicket(EVENT, { value: PRICE })
+      ).to.be.revertedWithCustomError(tickets, "NotVerified");
     });
   });
 

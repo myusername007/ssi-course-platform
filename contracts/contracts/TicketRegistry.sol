@@ -4,7 +4,8 @@ pragma solidity 0.8.20;
 import "./interfaces/IIdentityRegistry.sol";
 
 /// @notice Ticket sales for events, restricted to wallets that hold a
-/// registered identity in the existing BasicIdentityRegistry. Like
+/// registered, internally consistent identity in the existing
+/// BasicIdentityRegistry. Like
 /// CourseRegistry, this contract only ever READS that registry through
 /// IIdentityRegistry.getIdentity() and never writes to it.
 ///
@@ -97,10 +98,36 @@ contract TicketRegistry {
     // Verification (read-only view of the existing identity registry)
     // ---------------------------------------------------------------
 
-    /// @notice True if `user` has a registered identity (non-zero timestamp).
+    /// @notice How the identity registry's record for an address looks to the
+    /// ticket service.
+    ///  - NotRegistered: no record (zero timestamp).
+    ///  - Inconsistent: a record exists but its stored hash does not match its
+    ///    CID by the registry's own convention (see verificationStatus).
+    ///  - Valid: a record exists and its hash matches its CID.
+    enum VerificationStatus {
+        NotRegistered,
+        Inconsistent,
+        Valid
+    }
+
+    /// @notice Checks `user`'s record in the identity registry. The SSI dApp
+    /// stores every profile as (cid, dataHash) with
+    /// dataHash = keccak256("ipfs/" ++ cid) and, in its "authenticity" check,
+    /// recomputes that hash; this function applies the same rule on-chain, so
+    /// a record whose CID was altered or malformed is not accepted here either.
+    /// It proves the record is internally consistent, not that the profile
+    /// content is true: the holder of the record chooses what to register.
+    function verificationStatus(address user) public view returns (VerificationStatus) {
+        (, string memory cid, bytes32 dataHash, uint256 timestamp) = identityRegistry.getIdentity(user);
+        if (timestamp == 0) return VerificationStatus.NotRegistered;
+        if (keccak256(abi.encodePacked("ipfs/", cid)) != dataHash) return VerificationStatus.Inconsistent;
+        return VerificationStatus.Valid;
+    }
+
+    /// @notice True if `user` has a registered identity whose record passes
+    /// the consistency check above.
     function isVerified(address user) public view returns (bool) {
-        (, , , uint256 timestamp) = identityRegistry.getIdentity(user);
-        return timestamp != 0;
+        return verificationStatus(user) == VerificationStatus.Valid;
     }
 
     // ---------------------------------------------------------------

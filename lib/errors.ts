@@ -4,7 +4,7 @@ import { TICKET_REGISTRY_ABI } from "./contracts";
 const iface = new ethers.utils.Interface(TICKET_REGISTRY_ABI);
 
 const CONTRACT_ERRORS: Record<string, string> = {
-  NotVerified: "Цей гаманець не має підтвердженої ідентичності.",
+  NotVerified: "Цей гаманець не має підтвердженої ідентичності, або запис не пройшов перевірку цілісності.",
   AlreadyHasTicket: "У вас уже є квиток на цю подію.",
   SoldOut: "Квитки розпродано.",
   SaleClosed: "Продаж квитків на цю подію завершено.",

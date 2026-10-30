@@ -61,3 +61,6 @@ contracts/*.tsbuildinfo
 
 # demo events created for live testing (hold join links); see contracts/scripts/create-demo-event.ts
 data/demo-events.json
+
+# throwaway wallet with a test identity for the live verification scripts
+contracts/.test-identity.json
