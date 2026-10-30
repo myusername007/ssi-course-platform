@@ -9,24 +9,27 @@ import { join } from "node:path";
 // deliberately inconsistent.) The key lives in a git-ignored file, holds no
 // value and exists only on Sepolia.
 export const IDENTITY_REGISTRY = "0xBdd500644fff1693f14f3853DB1fa5fba5BC2558";
-const FILE = join(__dirname, "..", ".test-identity.json");
+const fileFor = (n: number) => join(__dirname, "..", n === 1 ? ".test-identity.json" : `.test-identity-${n}.json`);
 
 export const identityAbi = [
   "function registerIdentity(string fullname, string cid, bytes32 dataHash)",
   "function getIdentity(address user) view returns (string fullname, string cid, bytes32 dataHash, uint256 timestamp)",
 ];
 
-export function loadTestIdentity(): Wallet {
-  if (!existsSync(FILE)) throw new Error("Run scripts/test-identity.ts first (creates contracts/.test-identity.json)");
+export function loadTestIdentity(n = 1): Wallet {
+  const FILE = fileFor(n);
+  if (!existsSync(FILE)) throw new Error(`Run scripts/test-identity.ts first (IDENTITY_N=${n}); creates ${FILE}`);
   const { privateKey } = JSON.parse(readFileSync(FILE, "utf-8"));
   return new ethers.Wallet(privateKey, ethers.provider);
 }
 
 async function main() {
+  const n = Number(process.env.IDENTITY_N ?? 1);
+  const FILE = fileFor(n);
   const [organizer] = await ethers.getSigners();
   let wallet: Wallet;
   if (existsSync(FILE)) {
-    wallet = loadTestIdentity();
+    wallet = loadTestIdentity(n);
   } else {
     const w = ethers.Wallet.createRandom();
     writeFileSync(FILE, JSON.stringify({ address: w.address, privateKey: w.privateKey }, null, 2) + "\n", { mode: 0o600 });
@@ -48,7 +51,7 @@ async function main() {
   }
   const cid = "bafytestidentity" + wallet.address.slice(2, 14).toLowerCase();
   const dataHash = ethers.keccak256(ethers.toUtf8Bytes("ipfs/" + cid)); // the SSI dApp's convention
-  const receipt = await (await registry.registerIdentity("Test Identity", cid, dataHash)).wait();
+  const receipt = await (await registry.registerIdentity(`Test Identity ${n}`, cid, dataHash)).wait();
   console.log(`Registered in the identity registry (gas ${receipt!.gasUsed}), cid ${cid}`);
 }
 

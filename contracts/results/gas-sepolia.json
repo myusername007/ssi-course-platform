@@ -1,0 +1,145 @@
+{
+  "network": "sepolia (Glamsterdam rules, EIP-8037)",
+  "contract": "0x5A877e4917EfFA1D6d051E3537501152e07943CD",
+  "runtimeBytes": 5019,
+  "gas": {
+    "deploy": 7968616,
+    "createEvent (first)": 241039,
+    "createEvent (next)": 241039,
+    "buyTicket (first ever)": 496315,
+    "buyTicket (next, same event)": 398395,
+    "buyTicket (other event)": 398395,
+    "checkIn": 34435,
+    "checkIn (second holder)": 34435,
+    "rateEvent (first rating of event)": 355998,
+    "rateEvent (second rating of event)": 160158,
+    "withdraw": 26052,
+    "withdraw (sample 1)": 17052,
+    "withdraw (sample 2)": 17052,
+    "withdraw (sample 3)": 17052,
+    "withdraw (sample 4)": 17052,
+    "withdraw (sample 5)": 17052,
+    "withdraw (sample 6)": 17052
+  },
+  "txs": [
+    {
+      "op": "deploy",
+      "gas": 7968616,
+      "gasPriceWei": "1000000000",
+      "confirmMs": 4851,
+      "block": 12028334
+    },
+    {
+      "op": "createEvent (first)",
+      "gas": 241039,
+      "gasPriceWei": "1000000000",
+      "confirmMs": 12031,
+      "block": 12028335
+    },
+    {
+      "op": "createEvent (next)",
+      "gas": 241039,
+      "gasPriceWei": "1000000000",
+      "confirmMs": 13213,
+      "block": 12028336
+    },
+    {
+      "op": "buyTicket (first ever)",
+      "gas": 496315,
+      "gasPriceWei": "66",
+      "confirmMs": 11280,
+      "block": 12028337
+    },
+    {
+      "op": "buyTicket (next, same event)",
+      "gas": 398395,
+      "gasPriceWei": "66",
+      "confirmMs": 11427,
+      "block": 12028338
+    },
+    {
+      "op": "buyTicket (other event)",
+      "gas": 398395,
+      "gasPriceWei": "66",
+      "confirmMs": 11868,
+      "block": 12028339
+    },
+    {
+      "op": "checkIn",
+      "gas": 34435,
+      "gasPriceWei": "66",
+      "confirmMs": 12018,
+      "block": 12028340
+    },
+    {
+      "op": "checkIn (second holder)",
+      "gas": 34435,
+      "gasPriceWei": "66",
+      "confirmMs": 12533,
+      "block": 12028341
+    },
+    {
+      "op": "rateEvent (first rating of event)",
+      "gas": 355998,
+      "gasPriceWei": "66",
+      "confirmMs": 8181,
+      "block": 12028383
+    },
+    {
+      "op": "rateEvent (second rating of event)",
+      "gas": 160158,
+      "gasPriceWei": "66",
+      "confirmMs": 11496,
+      "block": 12028384
+    },
+    {
+      "op": "withdraw",
+      "gas": 26052,
+      "gasPriceWei": "1000000000",
+      "confirmMs": 13066,
+      "block": 12028385
+    },
+    {
+      "op": "withdraw (sample 1)",
+      "gas": 17052,
+      "gasPriceWei": "1000000000",
+      "confirmMs": 11600,
+      "block": 12028386
+    },
+    {
+      "op": "withdraw (sample 2)",
+      "gas": 17052,
+      "gasPriceWei": "1000000000",
+      "confirmMs": 12059,
+      "block": 12028387
+    },
+    {
+      "op": "withdraw (sample 3)",
+      "gas": 17052,
+      "gasPriceWei": "1000000000",
+      "confirmMs": 12050,
+      "block": 12028388
+    },
+    {
+      "op": "withdraw (sample 4)",
+      "gas": 17052,
+      "gasPriceWei": "1000000000",
+      "confirmMs": 10994,
+      "block": 12028389
+    },
+    {
+      "op": "withdraw (sample 5)",
+      "gas": 17052,
+      "gasPriceWei": "1000000000",
+      "confirmMs": 12272,
+      "block": 12028390
+    },
+    {
+      "op": "withdraw (sample 6)",
+      "gas": 17052,
+      "gasPriceWei": "1000000000",
+      "confirmMs": 12501,
+      "block": 12028391
+    }
+  ]
+}

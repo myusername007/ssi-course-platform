@@ -63,4 +63,4 @@ contracts/*.tsbuildinfo
 data/demo-events.json
 
 # throwaway wallet with a test identity for the live verification scripts
-contracts/.test-identity.json
+contracts/.test-identity*.json

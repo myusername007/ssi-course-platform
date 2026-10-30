@@ -1,0 +1,64 @@
+{
+  "measuredAt": "2026-10-30T18:14:26.868Z",
+  "node": "v25.8.1",
+  "tenderly: eth_blockNumber": {
+    "n": 40,
+    "min": 89.00887499999953,
+    "median": 96.78850000000011,
+    "mean": 106,
+    "p95": 145.8149169999997,
+    "max": 256.17991700000005
+  },
+  "tenderly: isVerified": {
+    "n": 40,
+    "min": 90.43429199999082,
+    "median": 97.58179100000416,
+    "mean": 112,
+    "p95": 117.3232919999864,
+    "max": 578.3920830000061
+  },
+  "tenderly: isVerified result": true,
+  "publicnode: eth_blockNumber": {
+    "n": 40,
+    "min": 46.28887499999837,
+    "median": 57.5135830000072,
+    "mean": 63,
+    "p95": 115.92900000000373,
+    "max": 121.28695799999696
+  },
+  "publicnode: isVerified": {
+    "n": 40,
+    "min": 50.66670800000429,
+    "median": 58.07095900000422,
+    "mean": 71,
+    "p95": 116.27400000000489,
+    "max": 387.88099999999395
+  },
+  "publicnode: isVerified result": true,
+  "catalog read, Multicall3 (1 request, 48 calls)": {
+    "n": 15,
+    "min": 115.23766700000851,
+    "median": 123.72941699999501,
+    "mean": 131,
+    "p95": 255.30166599998483,
+    "max": 255.30166599998483
+  },
+  "catalog read, 48 parallel requests": {
+    "n": 8,
+    "min": 110.86958400000003,
+    "median": 114.08687500000815,
+    "mean": 160,
+    "p95": 259.58533299999544,
+    "max": 259.58533299999544
+  },
+  "catalog read, 48 parallel requests: refused (rate limit) of 384": 264,
+  "server access endpoint, first request": 1625.2396660000086,
+  "server access endpoint, next 30": {
+    "n": 30,
+    "min": 214.52374999999302,
+    "median": 246.50962500000605,
+    "mean": 287,
+    "p95": 340.6495409999916,
+    "max": 1274.8225410000014
+  }
+}

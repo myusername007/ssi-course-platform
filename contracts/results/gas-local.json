@@ -1,0 +1,17 @@
+{
+  "network": "hardhat (pre-EIP-8037 rules)",
+  "runtimeBytes": 5019,
+  "gas": {
+    "deploy": 1137816,
+    "createEvent (first)": 71111,
+    "createEvent (next)": 71111,
+    "buyTicket (first ever)": 133287,
+    "buyTicket (next, same event)": 116187,
+    "buyTicket (other event)": 116187,
+    "checkIn": 33235,
+    "rateEvent (first rating of event)": 97938,
+    "rateEvent (second rating of event)": 63738,
+    "withdraw": 29752,
+    "isVerified (view, gas estimate)": 34337
+  }
+}
