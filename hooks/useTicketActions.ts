@@ -38,7 +38,8 @@ async function requestLink(
   onSigned();
   // A node behind the server can lag a block behind the one the check-in was
   // just confirmed on, so right after checking in retry a few times.
-  const attempts = justCheckedIn ? 4 : 1;
+  // 5 pauses of 2.5 s = 12.5 s, longer than one block (12 s)
+  const attempts = justCheckedIn ? 6 : 1;
   for (let i = 0; i < attempts; i++) {
     const res = await fetch(`/api/events/${eventId}/access`, {
       method: "POST",

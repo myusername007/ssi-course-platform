@@ -5,9 +5,13 @@ import { TICKET_REGISTRY_ABI, TICKET_REGISTRY_ADDRESS } from "../../../lib/contr
 import { contractCall, revertName, rpcRequest, sleep } from "../../../lib/chain";
 
 export const dynamic = "force-dynamic";
+// two reads with up to 12.5 s of waiting each
+export const maxDuration = 60;
 
 const iface = new ethers.utils.Interface(TICKET_REGISTRY_ABI);
-const ATTEMPTS = 4;
+// (ATTEMPTS - 1) pauses of RETRY_DELAY_MS must cover the lag of a public node,
+// which is at most one block (12 s): 5 pauses of 2.5 s = 12.5 s.
+const ATTEMPTS = 6;
 const RETRY_DELAY_MS = 2500;
 
 // A public RPC node can lag a block behind the wallet's node, so a ticket
